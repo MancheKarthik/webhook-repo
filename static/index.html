@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GitHub Events</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .event { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>GitHub Activity Feed</h2>
+  <div id="feed"></div>
+
+  <script>
+    async function fetchEvents() {
+      const res = await fetch('/events');
+      const data = await res.json();
+      const feed = document.getElementById('feed');
+      feed.innerHTML = '';
+      data.reverse().forEach(event => {
+        let text = '';
+        let time = new Date(event.timestamp).toUTCString();
+        if (event.type === 'push') {
+          text = `${event.author} pushed to ${event.to_branch} on ${time}`;
+        } else if (event.type === 'pull_request') {
+          text = `${event.author} submitted a pull request from ${event.from_branch} to ${event.to_branch} on ${time}`;
+        } else if (event.type === 'merge') {
+          text = `${event.author} merged branch ${event.from_branch} to ${event.to_branch} on ${time}`;
+        }
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.textContent = text;
+        feed.appendChild(div);
+      });
+    }
+
+    fetchEvents();
+    setInterval(fetchEvents, 15000);
+  </script>
+</body>
+</html>
